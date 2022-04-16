@@ -1,7 +1,13 @@
+"""
+Blackjack documentation
+"""
+
 from constants import NUM_SIMULATIONS
 from card_deck import Card, Deck
 
-
+'''
+Hand class refers to a hand for a participant of the game
+'''
 class Hand:
 
     def __init__(self):
@@ -9,6 +15,7 @@ class Hand:
         self.total = []
         # self.soft_total = 0
 
+    # Method to get hand total
     def get_hand_total(self):
         total = 0
         for card in self.hand_cards:
@@ -16,7 +23,9 @@ class Hand:
         self.total = total
         return self.total
 
-
+'''
+Defining a sample strategy for reference
+'''
 def sample_strategy():
     player_hand = Hand()
     dealer_hand = Hand()
@@ -36,6 +45,9 @@ def sample_strategy():
     return False
 
 
+'''
+Running simulations 
+'''
 def play():
     player_wins = 0
 
