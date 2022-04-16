@@ -1,5 +1,13 @@
+"""
+Classes related to playing cards have been defined here
+"""
+
 import random
 from utils.card_functions import get_card_num_value
+
+'''
+Card class holds the properties of a single playing card
+'''
 
 
 class Card:
@@ -16,6 +24,11 @@ class Card:
 
     def get(self):
         return self.suit, self.value
+
+
+'''
+Deck class holds the properties of a standard deck of cards
+'''
 
 
 class Deck:

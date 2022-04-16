@@ -1,3 +1,8 @@
+"""
+Global constants defined here
+Do not define constants specific to a strategy here
+"""
+
 CARD_FACE_VALUES = {
     # "A": (1, 11),
     "A": 1,
