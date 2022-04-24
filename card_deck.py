@@ -3,6 +3,7 @@ Classes related to playing cards have been defined here
 """
 
 import random
+
 from utils.card_functions import get_card_num_value
 
 '''
@@ -61,33 +62,6 @@ class Deck:
     def total_cards(self):
         return len(self.cards)
 
-    # TODO: Why do we need this?
-    # Method for the open cards
-    # def negation(self):
-    #     final = []
-    #     # pad the final list
-    #     for i in range(52):
-    #         final.append(0)
-    #     # now fill in the proper order
-    #     for card in self.open_cards:
-    #         value = int(card.split('-')[0])
-    #         # find the right place in the list
-    #         # the first index for any value is 4 * (value-1)
-    #         index = 4 * (value - 1)
-    #
-    #         # is this the first, second, third or fourth instance of this card?
-    #         if final[index] is 0:
-    #             final[index] = 1
-    #         elif final[index + 1] is 0:
-    #             final[index + 1] = 1
-    #         elif final[index + 2] is 0:
-    #             final[index + 2] = 1
-    #         else:
-    #             final[index + 3] = 1
-    #     return final
-
-    # Method to deal a card from the deck
-
     def deal(self):
         card = random.choice(self.cards)
         self.cards.remove(card)
@@ -112,10 +86,23 @@ class Hand:
         total = 0
         for card in self.hand_cards:
             total += card.num_value
-        self.total = total
+        self.total = self.get_final_total(total)
         return self.total
 
     def is_soft_total(self):
         if 'A' in [card.get_face() for card in self.hand_cards]:
             return True
         return False
+
+    def get_final_total(self, total):
+        if total <= 21:
+            return total
+        high_ace = False
+        for card in self.hand_cards:
+            if card.get_face() == 'A':
+                high_ace = True
+                card.num_value = 1
+                break
+        if high_ace:
+            return total - 10
+        return total

@@ -41,6 +41,10 @@ def soft_totals_strategy(total, dealer_up_card):
     return action
 
 
+def deviations(player_hand, dealer_up_card, true_count):
+    pass
+
+
 def take_action(player_hand, dealer_up_card):
     player_total = player_hand.get_hand_total()
 
