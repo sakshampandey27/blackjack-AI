@@ -106,3 +106,9 @@ class Hand:
         if high_ace:
             return total - 10
         return total
+
+    def get_initial_hand_total(self):
+        initial_sum = 0
+        for card in self.hand_cards[0:2]:
+            initial_sum += card.get_value()
+        return initial_sum
