@@ -3,7 +3,6 @@ Classes related to playing cards have been defined here
 """
 
 import random
-
 from utils.card_functions import get_card_num_value
 
 '''

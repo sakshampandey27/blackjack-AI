@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -8,14 +10,17 @@ from constants import DEALER_UP_CARD_FEATURE, PLAYER_HAND_FEATURE, PLAYER_RESULT
 from constants import NUM_SIMULATIONS
 
 
-def generate_stats():
-    model_df = sample_func()
-    plot_win_vs_dealer_up_card(model_df)
-    plot_win_vs_player_hand(model_df)
-    plot_player_hand_vs_dealer_up_card(model_df)
+def generate_stats(strategy_name):
+    model_df = generate_model()
+    if not os.path.exists(os.path.join("stats", strategy_name)):
+        os.makedirs(os.path.join("stats", strategy_name))
+    stats_folder = os.path.join("stats", strategy_name)
+    plot_win_vs_dealer_up_card(model_df, stats_folder)
+    plot_win_vs_player_hand(model_df, stats_folder)
+    plot_player_hand_vs_dealer_up_card(model_df, stats_folder)
 
 
-def plot_win_vs_dealer_up_card(model_df):
+def plot_win_vs_dealer_up_card(model_df, stats_folder):
     data = 1 - (model_df.groupby(by='dealer_card').sum()['loss'] /
                 model_df.groupby(by='dealer_card').count()['loss'])
 
@@ -26,10 +31,10 @@ def plot_win_vs_dealer_up_card(model_df):
     ax.set_ylabel("Probability of Tie or Win", fontsize=16)
 
     plt.tight_layout()
-    plt.savefig(fname='dealer_card_probs', dpi=100)
+    plt.savefig(fname=os.path.join(stats_folder, 'dealer_card_probs'), dpi=100)
 
 
-def plot_win_vs_player_hand(model_df):
+def plot_win_vs_player_hand(model_df, stats_folder):
     data = 1 - (model_df.groupby(by='player_total_initial').sum()['loss'] /
                 model_df.groupby(by='player_total_initial').count()['loss'])
 
@@ -40,10 +45,10 @@ def plot_win_vs_player_hand(model_df):
     ax.set_ylabel("Probability of Tie or Win", fontsize=16)
 
     plt.tight_layout()
-    plt.savefig(fname='player_hand_probs', dpi=100)
+    plt.savefig(fname=os.path.join(stats_folder, 'player_hand_probs'), dpi=100)
 
 
-def plot_player_hand_vs_dealer_up_card(model_df):
+def plot_player_hand_vs_dealer_up_card(model_df, stats_folder):
     pivot_data = model_df[model_df['player_total_initial'] != 21]
 
     losses_pivot = pd.pivot_table(pivot_data, values='loss',
@@ -64,10 +69,10 @@ def plot_player_hand_vs_dealer_up_card(model_df):
     ax.set_xlabel("Player's Hand Value", fontsize=16)
     ax.set_ylabel("Dealer's Card", fontsize=16)
 
-    plt.savefig(fname='heat_map_random', dpi=100)
+    plt.savefig(fname=os.path.join(stats_folder, 'heat_map_random'), dpi=100)
 
 
-def plot_chart(win_rates):
+def plot_chart(win_rates, stats_folder):
     plt.style.use('ggplot')
     plt.figure(figsize=(12, 6))
 
@@ -77,10 +82,10 @@ def plot_chart(win_rates):
     plt.xlabel("Games Played")
     plt.ylim([0, 100])
     plt.xlim([0, NUM_SIMULATIONS])
-    plt.savefig(fname='player_win_rate', dpi=100)
+    plt.savefig(fname=os.path.join(stats_folder, 'player_win_rate'), dpi=100)
 
 
-def sample_func():
+def generate_model():
     model_df = pd.DataFrame()
     model_df['dealer_card'] = DEALER_UP_CARD_FEATURE
     model_df['player_total_initial'] = [hand.get_initial_hand_total() for hand in PLAYER_HAND_FEATURE]
@@ -111,18 +116,18 @@ def sample_func():
             dealer_card_num.append(d_card)
     model_df['dealer_card_num'] = dealer_card_num
 
-    # correct = []
-    # for i, val in enumerate(model_df['loss']):
-    #     if val == 1:
-    #         if PLAYER_CURRENT_ACTION[i] == 1:
-    #             correct.append(0)
-    #         else:
-    #             correct.append(1)
-    #     else:
-    #         if PLAYER_CURRENT_ACTION[i] == 1:
-    #             correct.append(1)
-    #         else:
-    #             correct.append(0)
-    # model_df['correct_action'] = correct
+    correct = []
+    for i, val in enumerate(model_df['loss']):
+        if val == 1:
+            if PLAYER_CURRENT_ACTION[i] == 1:
+                correct.append(0)
+            else:
+                correct.append(1)
+        else:
+            if PLAYER_CURRENT_ACTION[i] == 1:
+                correct.append(1)
+            else:
+                correct.append(0)
+    model_df['correct_action'] = correct
 
     return model_df
