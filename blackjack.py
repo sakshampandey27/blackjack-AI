@@ -16,15 +16,8 @@ from constants import DEALER_UP_CARD_FEATURE, PLAYER_HAND_FEATURE, PLAYER_RESULT
 from constants import NUM_SIMULATIONS, CARD_COUNT_VALUES, NUM_DECKS
 from strategies import basic, simple, inexperienced, counting, learning
 
-import tensorflow as tf
-from tensorflow.python.client import device_lib
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-
-# print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
-# print(device_lib.list_local_devices())
-# assert tf.test.is_gpu_available()
-# assert tf.test.is_built_with_cuda()
 
 
 PLAYER_MONEY = copy.deepcopy(NUM_SIMULATIONS)
@@ -212,11 +205,12 @@ def simulate(strategy):
         for sim in range(NUM_SIMULATIONS):
             if deck.total_cards() <= NUM_DECKS * 13:
                 deck = Deck(NUM_DECKS)
-            result, return_amount = play(deck, strategy.simple)
+            result, return_amount = play(deck, strategy.basic)
 
         ml_model_df = stats.generate_model()
         ml_model = learning.neural_net(ml_model_df)
 
+    PLAYER_MONEY = copy.deepcopy(NUM_SIMULATIONS)
     for sim in range(NUM_SIMULATIONS):
         if deck.total_cards() <= NUM_DECKS * 13:
             deck = Deck(NUM_DECKS)
@@ -229,6 +223,8 @@ def simulate(strategy):
 
         win_rate = (wins / (sim + 1)) * 100
         plot_wins.append(win_rate)
+        if sim % 2000 == 0:
+            print(sim, win_rate)
 
     print("Win percentage for player with {0} strategy = {1:.2f}%".format(strategy.name, win_rate))
     print("Amount after {0} rounds = {1:.2f}".format(NUM_SIMULATIONS, PLAYER_MONEY))

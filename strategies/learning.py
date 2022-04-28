@@ -2,6 +2,8 @@
 Machine learning strategy logic goes here
 Create a separate function for this strategy if you feel the need
 """
+import os
+
 import numpy as np
 import sklearn.metrics as metrics
 from keras.layers import Dense
@@ -44,6 +46,8 @@ def neural_net(model_df):
     ax.set_ylabel("True Positive Rate", fontsize=16)
     plt.setp(ax.get_legend().get_texts(), fontsize=16)
 
+    if not os.path.exists(os.path.join("stats", "ml")):
+        os.makedirs(os.path.join("stats", "ml"))
     plt.savefig(fname="stats\\ml\\roc_curve_blackjack", dpi=100)
 
     return model
