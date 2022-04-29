@@ -10,6 +10,7 @@ from constants import DEALER_UP_CARD_FEATURE, PLAYER_HAND_FEATURE, PLAYER_RESULT
 from constants import NUM_SIMULATIONS
 
 
+# Method to generate the NN model and all other charts
 def generate_stats(strategy_name):
     model_df = generate_model()
     if not os.path.exists(os.path.join("stats", strategy_name)):
@@ -20,6 +21,7 @@ def generate_stats(strategy_name):
     plot_player_hand_vs_dealer_up_card(model_df, stats_folder)
 
 
+# Plotting a chart of winning probability versus dealer's face up card
 def plot_win_vs_dealer_up_card(model_df, stats_folder):
     data = 1 - (model_df.groupby(by='dealer_card').sum()['loss'] /
                 model_df.groupby(by='dealer_card').count()['loss'])
@@ -31,9 +33,10 @@ def plot_win_vs_dealer_up_card(model_df, stats_folder):
     ax.set_ylabel("Probability of Tie or Win", fontsize=16)
 
     plt.tight_layout()
-    plt.savefig(fname=os.path.join(stats_folder, 'dealer_card_probs'), dpi=100)
+    plt.savefig(fname=os.path.join(stats_folder, 'dealer_card_probs'), dpi=50)
 
 
+# Plotting a chart of winning probability versus player's hand total
 def plot_win_vs_player_hand(model_df, stats_folder):
     data = 1 - (model_df.groupby(by='player_total_initial').sum()['loss'] /
                 model_df.groupby(by='player_total_initial').count()['loss'])
@@ -45,9 +48,10 @@ def plot_win_vs_player_hand(model_df, stats_folder):
     ax.set_ylabel("Probability of Tie or Win", fontsize=16)
 
     plt.tight_layout()
-    plt.savefig(fname=os.path.join(stats_folder, 'player_hand_probs'), dpi=100)
+    plt.savefig(fname=os.path.join(stats_folder, 'player_hand_probs'), dpi=50)
 
 
+# Plotting a chart of player's hand total versus dealer's face up card
 def plot_player_hand_vs_dealer_up_card(model_df, stats_folder):
     pivot_data = model_df[model_df['player_total_initial'] != 21]
 
@@ -69,9 +73,10 @@ def plot_player_hand_vs_dealer_up_card(model_df, stats_folder):
     ax.set_xlabel("Player's Hand Value", fontsize=16)
     ax.set_ylabel("Dealer's Card", fontsize=16)
 
-    plt.savefig(fname=os.path.join(stats_folder, 'heat_map_random'), dpi=100)
+    plt.savefig(fname=os.path.join(stats_folder, 'heat_map_random'), dpi=50)
 
 
+# Plotting chart of win rate tracked over simulations
 def plot_chart(win_rates, stats_folder):
     plt.style.use('ggplot')
     plt.figure(figsize=(12, 6))
@@ -82,9 +87,10 @@ def plot_chart(win_rates, stats_folder):
     plt.xlabel("Games Played")
     plt.ylim([0, 100])
     plt.xlim([0, NUM_SIMULATIONS])
-    plt.savefig(fname=os.path.join(stats_folder, 'player_win_rate'), dpi=100)
+    plt.savefig(fname=os.path.join(stats_folder, 'player_win_rate'), dpi=50)
 
 
+# Generating model dataframe containing features
 def generate_model():
     model_df = pd.DataFrame()
     model_df['dealer_card'] = DEALER_UP_CARD_FEATURE

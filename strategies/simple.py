@@ -1,9 +1,8 @@
 """
-Simple strategy logic goes here
-Create a separate function for this strategy if you feel the need
+Simple strategy functionality
 """
 
-
+# Decides action - hit or stand
 def take_action(player_hand):
     player_total = player_hand.get_hand_total()
 

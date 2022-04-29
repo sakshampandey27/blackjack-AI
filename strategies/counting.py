@@ -1,12 +1,12 @@
 """
-Counting cards strategy logic goes here
-Create a separate function for this strategy if you feel the need
+Counting cards functionality
 """
 
 from constants import NUM_DECKS
 from strategies.basic import soft_totals_strategy, hard_totals_strategy
 
 
+# Decides action - hit or stand
 def take_action(player_hand, dealer_up_card):
     player_total = player_hand.get_hand_total()
 
@@ -18,6 +18,7 @@ def take_action(player_hand, dealer_up_card):
     return action
 
 
+# Calculates the true count and decides the bet value for a round
 def get_bet_value(running_count, cards_left):
     num_decks_left = cards_left / 52
     true_count = int(running_count / num_decks_left)

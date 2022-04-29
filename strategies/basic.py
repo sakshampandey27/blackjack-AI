@@ -1,9 +1,8 @@
 """
-Basic strategy logic goes here (refer to chart)
-Create a separate function for this strategy if you feel the need
+Basic strategy functionality
 """
 
-
+# Strategy for hard totals
 def hard_totals_strategy(total, dealer_up_card):
     dealer_up_card_val = dealer_up_card.get_value()
 
@@ -25,6 +24,7 @@ def hard_totals_strategy(total, dealer_up_card):
     return action
 
 
+# Strategy for soft totals (including A)
 def soft_totals_strategy(total, dealer_up_card):
     dealer_up_card_val = dealer_up_card.get_value()
 
@@ -41,10 +41,7 @@ def soft_totals_strategy(total, dealer_up_card):
     return action
 
 
-def deviations(player_hand, dealer_up_card, true_count):
-    pass
-
-
+# Decides action - hit or stand
 def take_action(player_hand, dealer_up_card):
     player_total = player_hand.get_hand_total()
 

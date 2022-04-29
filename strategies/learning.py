@@ -1,6 +1,5 @@
 """
-Machine learning strategy logic goes here
-Create a separate function for this strategy if you feel the need
+NN functionality
 """
 import os
 
@@ -11,15 +10,15 @@ from keras.models import Sequential
 from matplotlib import pyplot as plt
 
 
+# Creating the neural network and generating it's ROC curve
 def neural_net(model_df):
     feature_list = [i for i in model_df.columns if i not in ['dealer_card',
                                                              'Y', 'loss',
                                                              'correct_action']]
-    print(feature_list)
     train_X = np.array(model_df[feature_list])
     train_Y = np.array(model_df['correct_action']).reshape(-1, 1)
 
-    # Set up a neural net with 5 layers
+    # Setting up a neural net with 5 layers
     model = Sequential()
     model.add(Dense(16))
     model.add(Dense(128))
@@ -29,10 +28,11 @@ def neural_net(model_df):
     model.compile(loss='binary_crossentropy', optimizer='sgd')
     model.fit(train_X, train_Y, epochs=20, batch_size=256, verbose=1)
 
-    pred_Y_train = model.predict(train_X)
-    actuals = train_Y[:, -1]
+    Y_train_prediction = model.predict(train_X)
+    pred = train_Y[:, -1]
 
-    fpr, tpr, threshold = metrics.roc_curve(actuals, pred_Y_train)
+    # Plotting the ROC curve metric
+    fpr, tpr, threshold = metrics.roc_curve(pred, Y_train_prediction)
     roc_auc = metrics.auc(fpr, tpr)
 
     fig, ax = plt.subplots(figsize=(10, 8))
@@ -48,11 +48,12 @@ def neural_net(model_df):
 
     if not os.path.exists(os.path.join("stats", "ml")):
         os.makedirs(os.path.join("stats", "ml"))
-    plt.savefig(fname="stats\\ml\\roc_curve_blackjack", dpi=100)
+    plt.savefig(fname="stats\\ml\\roc_curve_blackjack", dpi=50)
 
     return model
 
 
+# Decides action - hit or stand
 def take_action(model, player_total, dealer_card_val, has_ace):
     input = np.array([player_total, 0, has_ace, dealer_card_val]).reshape(1, -1)
     predict = model.predict(input)

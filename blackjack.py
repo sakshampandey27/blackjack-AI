@@ -16,6 +16,7 @@ from constants import DEALER_UP_CARD_FEATURE, PLAYER_HAND_FEATURE, PLAYER_RESULT
 from constants import NUM_SIMULATIONS, CARD_COUNT_VALUES, NUM_DECKS
 from strategies import basic, simple, inexperienced, counting, learning
 
+# To run tensorflow on GPU
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -24,6 +25,7 @@ PLAYER_MONEY = copy.deepcopy(NUM_SIMULATIONS)
 RUNNING_COUNT = 0
 
 
+# Strategy enum class
 class Strategy(enum.Enum):
     random = 1
     simple = 2
@@ -32,12 +34,14 @@ class Strategy(enum.Enum):
     ml = 5
 
 
+# Result enum class
 class GameResult(enum.Enum):
     win = 1
     loss = -1
     tie = 0
 
 
+# Determining strategy to be used
 def find_strategy(game_strategy):
     if game_strategy == "random":
         strategy = Strategy.random
@@ -66,6 +70,7 @@ def get_enum_value(result):
     return game_result.value
 
 
+# Getting the desired action for a particular strategy
 def action_strategy(strategy, player_hand, dealer_up_card, deck, ml_model=None):
     action = "stand"
     bet_value = 1
@@ -90,6 +95,7 @@ def action_strategy(strategy, player_hand, dealer_up_card, deck, ml_model=None):
     return action, bet_value
 
 
+# Initial steps of a game involve dealing 2 hands each to the player and the dealer
 def initial_deal(deck):
     player_hand = Hand()
     dealer_hand = Hand()
@@ -108,24 +114,28 @@ def initial_deal(deck):
     return player_hand, dealer_hand
 
 
+# Logic function to check if player or dealer have busted
 def is_bust(total):
     if total > 21:
         return True
     return False
 
 
+# Logic function to check if player has a blackjack
 def is_blackjack(total, num_cards):
     if total == 21 and num_cards == 2:
         return True
     return False
 
 
+# Logic function to check if player has a better total than the dealer
 def player_wins(p_total, d_total):
     if p_total > d_total:
         return True
     return False
 
 
+# Logic function to check if player has tied with the dealer
 def game_tied(p_total, d_total):
     if p_total == d_total:
         return True
@@ -141,6 +151,9 @@ def play(deck, strategy, ml_model=None):
     player_total = player_hand.get_hand_total()
     curr_totals.append(player_total)
 
+    # Main logic goes here
+    # Strategy decides an appropriate action based on certain parameters
+    # Play continues until the player busts or chooses to stand
     action, bet_value = action_strategy(strategy, player_hand, dealer_up_card, deck, ml_model)
     while action == "hit" and player_total < 21:
         card = deck.deal()
@@ -152,6 +165,7 @@ def play(deck, strategy, ml_model=None):
 
     PLAYER_MONEY -= bet_value
 
+    # Play continues until the dealer's total goes past 17. Dealer doesn't choose to stand
     dealer_total = dealer_hand.get_hand_total()
     while dealer_total < 17:
         card = deck.deal()
@@ -162,6 +176,7 @@ def play(deck, strategy, ml_model=None):
     DEALER_UP_CARD_FEATURE.append(dealer_up_card.get_value())
     PLAYER_HAND_FEATURE.append(player_hand)
 
+    # Determining the winner of a round
     if is_bust(player_total):
         result = "loss"
         return_amount = -1 * bet_value
@@ -192,6 +207,7 @@ def play(deck, strategy, ml_model=None):
     return result, return_amount
 
 
+# Function to simulate the game `NUM_SIMULATIONS` times
 def simulate(strategy):
     wins = 0
     deck = Deck()
@@ -201,15 +217,18 @@ def simulate(strategy):
 
     global RUNNING_COUNT, PLAYER_MONEY
 
+    # In case desired strategy is learning strategy, we first run the basic strategy to generate training data
     if strategy.name == "ml":
         for sim in range(NUM_SIMULATIONS):
             if deck.total_cards() <= NUM_DECKS * 13:
                 deck = Deck(NUM_DECKS)
             result, return_amount = play(deck, strategy.basic)
 
+        # Generate a model and train that model using the training data from basic strategy
         ml_model_df = stats.generate_model()
         ml_model = learning.neural_net(ml_model_df)
 
+    # Run simulations for the strategy
     PLAYER_MONEY = copy.deepcopy(NUM_SIMULATIONS)
     for sim in range(NUM_SIMULATIONS):
         if deck.total_cards() <= NUM_DECKS * 13:
@@ -217,14 +236,13 @@ def simulate(strategy):
 
         result, return_amount = play(deck, strategy, ml_model)
 
+        # Calculate win rate
         if result == "win":
             wins += 1
             PLAYER_MONEY += return_amount
 
         win_rate = (wins / (sim + 1)) * 100
         plot_wins.append(win_rate)
-        if sim % 2000 == 0:
-            print(sim, win_rate)
 
     print("Win percentage for player with {0} strategy = {1:.2f}%".format(strategy.name, win_rate))
     print("Amount after {0} rounds = {1:.2f}".format(NUM_SIMULATIONS, PLAYER_MONEY))
@@ -234,7 +252,7 @@ def simulate(strategy):
 
 
 if __name__ == '__main__':
-    start_time = time.time()
+    # start_time = time.time()
     input_strategy = sys.argv[1]
 
     input_strategy = find_strategy(input_strategy)
@@ -242,5 +260,5 @@ if __name__ == '__main__':
         print("Invalid strategy")
         exit(0)
     simulate(input_strategy)
-    end_time = time.time()
-    print("{0:.2f}".format(end_time - start_time))
+    # end_time = time.time()
+    # print("{0:.2f}".format(end_time - start_time))
